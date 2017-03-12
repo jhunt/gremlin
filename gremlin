@@ -1,0 +1,20 @@
+#!/bin/sh
+
+case $(uname -a) in
+*inux*)
+  export LD_PRELOAD=$PWD/gremlin.so
+  prog=$1 ; shift
+  exec $prog "$@"
+  ;;
+*)
+  echo "Your platform is not supported (yet)"
+  echo "Please open an issue at https://github.com/jhunt/gremlin/issues"
+  echo "with the following information:"
+  echo
+  echo "$ uname -a"
+  uname -a
+  exit 1
+  ;;
+esac
+
+exit 2

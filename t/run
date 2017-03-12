@@ -1,0 +1,39 @@
+#!/bin/sh
+
+FAILS=0
+
+ok() {
+	cmd=$1
+	want=$2
+
+	export GREMLINS
+	got=`$cmd`
+	if [ "0$?" != "00" ]; then
+		FAILS=1
+		echo "[fail] \`$cmd\` with GREMLINS='$GREMLINS' exited $? (not zero)"
+	else
+		echo "[ ok ] \`$cmd\` with GREMLINS='$GREMLINS' exited 0"
+	fi
+
+	if [ "x$got" != "x$want" ]; then
+		FAILS=1
+		echo "[fail] \`$cmd\` with GREMLINS='$GREMLINS' had unexpected output:"
+		echo "       expected '$want'"
+		echo "            got '$got'"
+	else
+		echo "[ ok ] \`$cmd\` = '$want'"
+	fi
+}
+
+                  ok './gremlin ./t/malloc' "xxxxxxxxxx"
+GREMLINS="!"      ok './gremlin ./t/malloc' "xxxxxxxxxx"
+GREMLINS=".!...!" ok './gremlin ./t/malloc' ".x...xxxxx"
+GREMLINS="!."     ok './gremlin ./t/malloc' "x........."
+GREMLINS=".!^"    ok './gremlin ./t/malloc' ".x.x.x.x.x"
+GREMLINS="foo!"   ok './gremlin ./t/malloc' "...xxxxxxx"
+GREMLINS="...."   ok './gremlin ./t/malloc' ".........."
+GREMLINS="!!..!^" ok './gremlin ./t/malloc' "xx..xxx..x"
+GREMLINS="!!...^" ok './gremlin ./t/malloc' "xx...xx..."
+
+
+exit $FAILS
